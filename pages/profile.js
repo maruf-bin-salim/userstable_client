@@ -98,9 +98,10 @@ export default function Profile() {
             {publicUserProfile &&
                 <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg mt-16">
                     <h1 className="text-white">Your Profile</h1>
-                    <div className="flex items-center gap-2 p-4 px-0">
+                    <div className="flex md:items-center gap-2 p-4 px-0 flex-col md:flex-row">
                         {session?.user?.user_metadata?.avatar_url && <img src={session.user.user_metadata.avatar_url} className="w-10 h-10 rounded-full" />}
                         <p className="text-gray-300">{publicUserProfile.email}</p>
+                        <p className="text-gray-300 font-thin text-sm">Logged in with {session?.user?.identities[0].provider}</p>
                     </div>
                     <p className="text-gray-300">Your
                         ID: {publicUserProfile.user_id}</p>

@@ -47,7 +47,12 @@ export default function Home() {
           view='sign_in'
           appearance={{ theme: ThemeSupa }}
           supabaseClient={supabase}
-          providers={['google', 'apple']}
+          providers={['google', 'apple', 'azure']}
+          providerScopes={{
+            google: 'email',
+            apple: 'email',
+            azure: 'email'
+          }}
         />
       </div>
     </div>

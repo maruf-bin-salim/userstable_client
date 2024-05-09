@@ -90,7 +90,7 @@ export default function Dashboard() {
             {
                 session && !session.user?.user_metadata?.avatar_url && (
                     <Link href="/profile">
-                        <button className="bg-blue-500 text-white px-4 py-2 rounded-md fixed top-4 right-4">Go To Profile</button>
+                        <button className="bg-blue-500 text-white px-4 py-2 rounded-md fixed top-4 left-4">Go To Profile</button>
                     </Link>
                 )
             }
