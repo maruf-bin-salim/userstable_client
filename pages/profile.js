@@ -84,8 +84,10 @@ export default function Profile() {
     if (!session) return null;
 
     if (!publicUserProfile) return (
-        <div className="flex flex-col gap-4 justify-center items-center md:items-start w-full bg-gray-900 p-4 min-h-screen w-screen relative">
-            <h1 className="text-white text-center w-[100%] block">Loading...</h1>
+        <div className="flex justify-center items-center h-screen w-full bg-gray-900" >
+            <p className="text-white text-2xl w-[100%] text-center">
+                Loading...
+            </p>
         </div>
     )
 
