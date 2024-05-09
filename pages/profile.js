@@ -81,9 +81,9 @@ export default function Profile() {
         return new Date(date).toLocaleString();
     }
 
-    if(!session) return null;
+    if (!session) return null;
 
-    if(!publicUserProfile) return (
+    if (!publicUserProfile) return (
         <div className="flex flex-col gap-4 justify-center items-center md:items-start w-full bg-gray-900 p-4 min-h-screen w-screen relative">
             <h1 className="text-white text-center w-[100%] block">Loading...</h1>
         </div>
@@ -98,7 +98,7 @@ export default function Profile() {
                     <h1 className="text-white">Your Profile</h1>
                     <div className="flex items-center gap-2 p-4 px-0">
                         {session?.user?.user_metadata?.avatar_url && <img src={session.user.user_metadata.avatar_url} className="w-10 h-10 rounded-full" />}
-                        <p className="text-gray-300">Email: {publicUserProfile.email}</p>
+                        <p className="text-gray-300">{publicUserProfile.email}</p>
                     </div>
                     <p className="text-gray-300">Your
                         ID: {publicUserProfile.user_id}</p>
@@ -113,40 +113,61 @@ export default function Profile() {
                 <div className="flex items-center gap-2 my-2 flex-wrap">
                     <input type="email" onChange={(e) => setEmail(e.target.value)} value={email}
                         className="bg-gray-700 text-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[100%]" />
-                    <button onClick={async () => {
+                    {
+                        email !== session?.user.email && email !== '' &&
+                        <button onClick={async () => {
 
-                        const { data, error } = await supabase.auth.updateUser({ email: email });
-                        if (error) {
-                            alert('Error updating email', error.message);
-                        }
-                        else {
-                            alert(`Email Updation Started. Please click both ${email} and ${session.user.email} for verification email. Signing Out now.`);
-                            await supabase.auth.signOut();
-                        }
-                    }} className="bg-blue-500 text-white px-4 py-2 rounded-md">Update Email</button>
+                            const { data, error } = await supabase.auth.updateUser({ email: email });
+                            if (error) {
+                                alert('Error updating email', error.message);
+                            }
+                            else {
+                                alert(`Email Updation Started. Please click both ${email} and ${session.user.email} for verification email. Signing Out now.`);
+                                await supabase.auth.signOut();
+                            }
+                        }} className="bg-blue-500 text-white px-4 py-2 rounded-md">Update Email</button>
+                    }
+                    {
+                        session && email !== session?.user.email &&
+                        <button className="bg-gray-500 text-white px-4 py-2 rounded-md cursor-pointer"
+                            onClick={() => {
+                                setEmail(session?.user.email);
+                            }}
+                        >x</button>
+                    }
                 </div>
                 {/*                 
                     show a message that says, after clicking update email, you will be signed out and you need to verify your email
                     you will be sent a verification email to both ${email} and ${session.user.email}
                     click both links to verify your email change operation
                  */}
-                <div className="bg-green-300 text-white px-4 py-2 rounded-md mt-2 max-w-[100%] w-[80%]">
-                    <p className="text-black font-thin text-sm">
-                        {`After clicking, you will be signed out and you need to verify your email. `}
-                    </p>
-                    <p className="text-black font-thin text-sm">
-                        {`You will be sent a verification email to both `}
-                        <span className="font-bold text-blue-500">
-                            {email}
-                        </span>
-                        {` and `}
-                        <span className="font-bold text-blue-500">
-                            {session?.user.email} .
-                        </span>
-                    </p>
-                    <p className="text-black font-thin text-sm">{`Click both links to verify your email change operation .`}</p>
-                </div>
+                {
+                    email !== session?.user.email && email !== '' && (
 
+                        <div className="bg-green-300 text-white px-4 py-2 rounded-md mt-2 max-w-[100%] w-[100%] md:w-[80%]">
+                            <p className="text-black font-thin text-sm">
+                                {`After clicking, you will be signed out and you need to verify your email. `}
+                            </p>
+                            <p className="text-black font-thin text-sm">
+                                {`You will be sent a verification email to both `}
+                                <span className="font-bold text-blue-500">
+                                    {email}
+                                </span>
+                                {` and `}
+                                <span className="font-bold text-blue-500">
+                                    {session?.user.email} .
+                                </span>
+                            </p>
+                            <p className="text-black font-thin text-sm">{`Click both links to verify your email change request .`}</p>
+                        </div>
+                    )
+                }
+
+            </div>
+
+            <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg">
+                <h1 className="text-white">Update user ID </h1>
+                <button onClick={() => updateUuid(session)} className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2">Generate Random User ID</button>
             </div>
 
             <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg">
@@ -157,10 +178,6 @@ export default function Profile() {
                 }} className="bg-red-500 text-white px-4 py-2 rounded-md mt-2">Delete Account</button>
             </div>
 
-            <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg">
-                <h1 className="text-white">Update user ID </h1>
-                <button onClick={() => updateUuid(session)} className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2">Generate Random User ID</button>
-            </div>
         </div>
     );
 }
