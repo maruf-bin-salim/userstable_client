@@ -10,6 +10,15 @@ export default function Dashboard() {
     const [isLoading, setIsLoading] = useState(false);
     const [users, setUsers] = useState([]);
 
+    async function upsertUser(session) {
+        const { data, error } = await supabase.from('users').upsert([{
+            id: session.user.id,
+            email: session.user.email,
+            last_sign_in_at: session.user.last_sign_in_at
+        }]);
+        if (error) console.error(error);
+    }
+
     useEffect(() => {
         const fetchUsers = async () => {
             setIsLoading(true);
@@ -30,6 +39,9 @@ export default function Dashboard() {
                 router.push('/');
             } else {
                 setSession(session);
+                if (session) {
+                    upsertUser(session);
+                }
             }
         });
 
