@@ -80,6 +80,12 @@ export default function Dashboard() {
                 )
             }
 
+            {
+                session && (
+                    <button onClick={() => supabase.auth.signOut()} className="bg-red-500 text-white px-4 py-2 rounded-md fixed top-4 right-4">Sign Out</button>
+                )
+            }
+
             {/* table */}
 
             {/* show user_id, email, last_sign_in_at, joined_at */}
@@ -100,7 +106,7 @@ export default function Dashboard() {
                         users.map((user) => (
                             <tr key={user.id} className="text-left border-b border-gray-700">
                                 <td className="text-gray-300 p-2">
-                                    {user.id}
+                                    {user.user_id}
                                 </td>
                                 <td className="text-gray-300 p-2">
                                     {user.email}
