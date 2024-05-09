@@ -76,6 +76,7 @@ export default function Profile() {
         return () => data.data.subscription.unsubscribe();
     }, []);
 
+
     // 2024-05-09T17:49:46.184183Z
     function formatDate(date) {
         return new Date(date).toLocaleString();
@@ -103,6 +104,8 @@ export default function Profile() {
                         <p className="text-gray-300">{publicUserProfile.email}</p>
                         <p className="text-gray-300 font-thin text-sm">Logged in with {session?.user?.identities[0].provider}</p>
                     </div>
+
+                   
                     <p className="text-gray-300">Your
                         ID: {publicUserProfile.user_id}</p>
                     <p className="text-gray-300">You joined at {formatDate(publicUserProfile.joined_at)}</p>
