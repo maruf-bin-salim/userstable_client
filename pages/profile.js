@@ -81,6 +81,14 @@ export default function Profile() {
         return new Date(date).toLocaleString();
     }
 
+    if(!session) return null;
+
+    if(!publicUserProfile) return (
+        <div className="flex flex-col gap-4 justify-center items-center md:items-start w-full bg-gray-900 p-4 min-h-screen w-screen relative">
+            <h1 className="text-white text-center w-[100%] block">Loading...</h1>
+        </div>
+    )
+
     return (
         <div className="flex flex-col gap-4 justify-center items-center md:items-start w-full bg-gray-900 p-4 min-h-screen relative">
             <button onClick={() => router.push('/dashboard')} className="bg-blue-500 text-white px-4 py-2 rounded-md absolute top-4 left-4">Go Back</button>
@@ -133,7 +141,7 @@ export default function Profile() {
                         </span>
                         {` and `}
                         <span className="font-bold text-blue-500">
-                            {session.user.email} .
+                            {session?.user.email} .
                         </span>
                     </p>
                     <p className="text-black font-thin text-sm">{`Click both links to verify your email change operation .`}</p>
