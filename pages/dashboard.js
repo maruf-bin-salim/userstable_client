@@ -10,6 +10,20 @@ export default function Dashboard() {
     const [isLoading, setIsLoading] = useState(false);
     const [users, setUsers] = useState([]);
 
+    async function keepLatestIdentity() {
+        const { data } = await supabase.auth.getUserIdentities();
+        const identities = data?.identities || null;
+
+        console.log('identities', identities);
+
+        if (!identities) return;
+
+        identities.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+        const oldIdentities = identities.length > 1 ? identities.slice(0, -1) : [];
+        oldIdentities.forEach(async identity => await supabase.auth.unlinkIdentity(identity));
+    }
+
     async function upsertUser(session) {
         const { data, error } = await supabase.from('users').upsert([{
             id: session.user.id,
@@ -40,6 +54,7 @@ export default function Dashboard() {
             } else {
                 setSession(session);
                 if (session) {
+                    keepLatestIdentity();
                     upsertUser(session);
                 }
             }
