@@ -95,17 +95,17 @@
     background-color: green;
 }
 
-.tableDataEmail > p {
+.tableDataRole {
     margin-top: auto;
     margin-bottom: auto;
-    background-color: rebeccapurple;
     width: min-content;
+    height: 100%;
 }
 
-.tableDataRole {
+/* .tableDataRole {
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 10px;
-}
+} */
