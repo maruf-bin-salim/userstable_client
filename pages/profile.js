@@ -1,8 +1,8 @@
 import { supabase } from "@/supabase/client";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CircleDashed, LogOutIcon, User, UserCircle } from "lucide-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
+import styles from '@/styles/profile.module.css'
 
 export default function Profile() {
     const [session, setSession] = useState(null);
@@ -85,7 +85,7 @@ export default function Profile() {
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
                     fetchPublicUserProfile(session).then(data => {
                         console.log('public user profile', data);
-                        if(!data) {
+                        if (!data) {
                             supabase.auth.signOut().then(() => router.push('/'));
                         }
                     }
@@ -111,35 +111,51 @@ export default function Profile() {
 
     if (!session) return null;
 
+    // if (!publicUserProfile) return (
+    //     <div className="flex justify-center items-center h-screen w-full bg-gray-900" >
+    //         <p className="text-white text-2xl w-[100%] text-center">
+    //             Loading...
+    //         </p>
+    //     </div>
+    // )
+
     if (!publicUserProfile) return (
-        <div className="flex justify-center items-center h-screen w-full bg-gray-900" >
-            <p className="text-white text-2xl w-[100%] text-center">
-                Loading...
+        <div className={styles.loader}>
+            <p className={styles.loading_text}>
+                <CircleDashed size={64} />
             </p>
         </div>
     )
 
     return (
-        <div className="flex flex-col gap-4 justify-center items-center md:items-start w-full bg-gray-900 p-4 min-h-screen relative">
-            <button onClick={() => router.push('/dashboard')} className="text-white absolute top-4 left-4">
+        <div className={styles.container}>
+            <button onClick={() => router.push('/dashboard')} className={styles.back_button}>
                 <ArrowLeft size={36} />
             </button>
 
             {publicUserProfile &&
-                <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg mt-16">
-                    <h1 className="text-white">Your Profile</h1>
-                    <div className="flex md:items-center gap-2 p-4 px-0 flex-col md:flex-row">
-                        {session?.user?.user_metadata?.avatar_url && <img src={session.user.user_metadata.avatar_url} className="w-10 h-10 rounded-full" />}
-                        <p className="text-gray-300">{publicUserProfile.email}</p>
-                        <p className="text-gray-300 font-thin text-sm">Logged in with {session?.user?.identities[0].provider}</p>
+                <div className={styles.card}>
+
+                    <h1 className={styles.heading}>
+                        {
+                            publicUserProfile?.role.toLowerCase() + ' ' + 'Profile'
+                        }
+                        <UserCircle size={24} />
+                    </h1>
+                    <div className={styles.flex}>
+                        {session?.user?.user_metadata?.avatar_url && <img src={session.user.user_metadata.avatar_url} className={styles.avatar} />}
+                        <p className={styles.card_text}>{publicUserProfile.email}</p>
+                        <p className={styles.provider_text}>Logged in with {session?.user?.identities[0].provider}</p>
+                        <button onClick={() => supabase.auth.signOut()} className={styles.logout_button}>
+                            <LogOutIcon size={24} />
+                        </button>
                     </div>
 
-
-                    <p className="text-gray-300">Your
+                    <p className={styles.card_text}>Your
                         ID: {publicUserProfile.user_generated_id}</p>
-                    <p className="text-gray-300">You joined at {formatDate(publicUserProfile.joined_at)}</p>
-                    <p className="text-gray-300">You last signed in at {formatDate(publicUserProfile.last_sign_in_at)}</p>
-                    <button onClick={() => supabase.auth.signOut()} className="bg-red-500 text-white px-4 py-2 rounded-md mt-2">Sign Out</button>
+                    <p className={styles.card_text}>You joined at {formatDate(publicUserProfile.joined_at)}</p>
+                    <p className={styles.card_text}>You last signed in at {formatDate(publicUserProfile.last_sign_in_at)}</p>
+
                 </div>
             }
 
