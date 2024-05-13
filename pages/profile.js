@@ -1,5 +1,5 @@
 import { supabase } from "@/supabase/client";
-import { ArrowLeft, CircleDashed, LogOutIcon, User, UserCircle } from "lucide-react";
+import { ArrowLeft, CircleDashed, DeleteIcon, Edit2Icon, KeyIcon, LogOutIcon, LucideDelete, MailCheck, Trash2Icon, User, UserCircle, UserMinus2Icon } from "lucide-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import styles from '@/styles/profile.module.css'
@@ -111,13 +111,6 @@ export default function Profile() {
 
     if (!session) return null;
 
-    // if (!publicUserProfile) return (
-    //     <div className="flex justify-center items-center h-screen w-full bg-gray-900" >
-    //         <p className="text-white text-2xl w-[100%] text-center">
-    //             Loading...
-    //         </p>
-    //     </div>
-    // )
 
     if (!publicUserProfile) return (
         <div className={styles.loader}>
@@ -142,13 +135,17 @@ export default function Profile() {
                         }
                         <UserCircle size={24} />
                     </h1>
-                    <div className={styles.flex}>
-                        {session?.user?.user_metadata?.avatar_url && <img src={session.user.user_metadata.avatar_url} className={styles.avatar} />}
-                        <p className={styles.card_text}>{publicUserProfile.email}</p>
-                        <p className={styles.provider_text}>Logged in with {session?.user?.identities[0].provider}</p>
-                        <button onClick={() => supabase.auth.signOut()} className={styles.logout_button}>
-                            <LogOutIcon size={24} />
-                        </button>
+                    <div className={styles.flex_profile}>
+                        <div className={styles.flex}>
+                            {session?.user?.user_metadata?.avatar_url && <img src={session.user.user_metadata.avatar_url} className={styles.avatar} />}
+                            <p className={styles.card_text}>{publicUserProfile.email}</p>
+                        </div>
+                        <div className={styles.flex}>
+                            <p className={styles.provider_text}>Logged in with {session?.user?.identities[0].provider}</p>
+                            <button onClick={() => supabase.auth.signOut()} className={styles.logout_button}>
+                                <LogOutIcon size={24} />
+                            </button>
+                        </div>
                     </div>
 
                     <p className={styles.card_text}>Your
@@ -159,11 +156,16 @@ export default function Profile() {
                 </div>
             }
 
-            <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg">
-                <p className="text-gray-300">Update Email</p>
-                <div className="flex items-center gap-2 my-2 flex-wrap">
+            <div className={styles.card}>
+                <p className={styles.heading}>Update Email
+                    <MailCheck size={24} />
+                </p>
+
+                <div className={styles.email_change}>
+
                     <input type="email" onChange={(e) => setEmail(e.target.value)} value={email}
-                        className="bg-gray-700 text-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[100%]" />
+                        spellCheck="false"
+                        className={styles.email_input} />
                     {
                         email !== session?.user.email && email !== '' &&
                         <button onClick={async () => {
@@ -176,103 +178,125 @@ export default function Profile() {
                                 alert(`Email Updation Started. Please click both ${email} and ${session.user.email} for verification email. Signing Out now.`);
                                 await supabase.auth.signOut();
                             }
-                        }} className="bg-blue-500 text-white px-4 py-2 rounded-md">Update Email</button>
+                        }} className={styles.email_button}>
+                            Update Email
+                            <Edit2Icon size={24} />
+                        </button>
                     }
                     {
                         session && email !== session?.user.email &&
-                        <button className="bg-gray-500 text-white px-4 py-2 rounded-md cursor-pointer"
+                        <button className={styles.cancel_email_button}
                             onClick={() => {
                                 setEmail(session?.user.email);
                             }}
-                        >x</button>
+                        >
+                            <LucideDelete size={24} />
+                        </button>
                     }
                 </div>
-                {/*                 
-                    show a message that says, after clicking update email, you will be signed out and you need to verify your email
-                    you will be sent a verification email to both ${email} and ${session.user.email}
-                    click both links to verify your email change operation
-                 */}
+
+
+
                 {
                     email !== session?.user.email && email !== '' && (
 
-                        <div className="bg-green-300 text-white px-4 py-2 rounded-md mt-2 max-w-[100%] w-[100%] md:w-[80%]">
-                            <p className="text-black font-thin text-sm">
+                        <div className={styles.email_change_info}>
+                            <p className={styles.email_change_info_text}>
                                 {`After clicking, you will be signed out and you need to verify your email. `}
                             </p>
-                            <p className="text-black font-thin text-sm">
+                            <p className={styles.email_change_info_text}>
                                 {`You will be sent a verification email to both `}
-                                <span className="font-bold text-blue-500">
+                                <span className={styles.email_change_info_text_bold}>
                                     {email}
                                 </span>
                                 {` and `}
-                                <span className="font-bold text-blue-500">
+                                <span className={styles.email_change_info_text_bold}>
                                     {session?.user.email} .
                                 </span>
                             </p>
-                            <p className="text-black font-thin text-sm">{`Click both links to verify your email change request .`}</p>
+                            <p className={styles.email_change_info_text}>{`Click both links to verify your email change request .`}</p>
                         </div>
                     )
                 }
 
             </div>
 
-            <div className="flex flex-col gap-4 w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg">
-                <h1 className="text-white">Update user ID </h1>
-                <input type="text" value={uuid} onChange={(e) => {
-                    setError('');
-                    setUuid(e.target.value);
-                }}
-                    className="bg-gray-700 text-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[100%] w-full md:w-[80%] lg:w-[25%]" />
+            <div className={styles.card}>
 
+
+                <h1 className={styles.heading}>
+                    Update user ID
+                    <KeyIcon size={24} />
+                </h1>
+
+                <div className={styles.uuid_change}>
+                    <input type="text" value={uuid} onChange={(e) => {
+                        setError('');
+                        setUuid(e.target.value);
+                    }}
+                        onFocus={() => setError('')}
+                        className={styles.user_id_input} />
+
+
+                    <button onClick={async () => {
+
+                        console.log('uuid', uuid);
+
+                        if (uuid === publicUserProfile.user_generated_id) {
+                            console.log('User ID is same as before');
+                            setError('User ID is same as before');
+                            return;
+                        }
+
+                        if (uuid === '') {
+                            console.log('User ID is empty');
+                            setError('User ID is empty');
+                            return;
+                        }
+
+                        const { data, error } = await supabase.from('users').upsert([{
+                            id: publicUserProfile.id,
+                            user_generated_id: uuid
+                        }]);
+
+                        if (error) {
+                            setError('user ID taken by someone else, please try another');
+                            console.log('error', error);
+                        }
+                        else {
+                            await fetchPublicUserProfile(session);
+                            setError('success');
+                        }
+
+
+                    }} className={styles.update_button}>
+                        Update
+                        <Edit2Icon size={24} />
+                    </button>
+
+                </div>
                 {
-                    error !== '' && error !== 'success' && <p className="text-red-500 text-sm">{error}</p>
+                    error !== '' && error !== 'success' && <p className={styles.uuid_error_text}>{error}</p>
                 }
                 {
-                    error === 'success' && <p className="text-green-500 text-sm">User ID updated successfully</p>
+                    error === 'success' && <p className={styles.uuid_success_text}>User ID updated successfully</p>
                 }
-                <button onClick={async () => {
 
-                    console.log('uuid', uuid);
-
-                    if (uuid === publicUserProfile.user_generated_id) {
-                        console.log('User ID is same as before');
-                        setError('User ID is same as before');
-                        return;
-                    }
-
-                    if (uuid === '') {
-                        console.log('User ID is empty');
-                        setError('User ID is empty');
-                        return;
-                    }
-
-                    const { data, error } = await supabase.from('users').upsert([{
-                        id: publicUserProfile.id,
-                        user_generated_id: uuid
-                    }]);
-
-                    if (error) {
-                        setError('user ID taken by someone else, please try another');
-                        console.log('error', error);
-                    }
-                    else {
-                        await fetchPublicUserProfile(session);
-                        setError('success');
-                    }
-
-
-                }} className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer w-[max-content]">
-                    Update User ID
-                </button>
             </div>
 
-            <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg">
-                <h1 className="text-white">Delete Account</h1>
+            <div className={styles.card}>
+                <h1 className={styles.heading}>
+                    Delete Account
+                    <UserMinus2Icon size={24} />
+                </h1>
                 <button onClick={async () => {
                     await supabase.from('users').delete().eq('id', session.user.id);
                     await supabase.rpc('deleteUser');
                     await supabase.auth.signOut();
-                }} className="bg-red-500 text-white px-4 py-2 rounded-md mt-2">Delete Account</button>
+                }} className={styles.delete_button}>
+                    Delete Account
+                    <Trash2Icon size={24} />
+                </button>
             </div>
 
         </div>

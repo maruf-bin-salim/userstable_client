@@ -1,9 +1,3 @@
-/*     <div className="flex justify-center items-center h-screen w-full bg-gray-900" >
-         <p className="text-white text-2xl w-[100%] text-center">
-             Loading...
-         </p>
-     </div> 
-*/
 
 
 .loader {
@@ -23,7 +17,6 @@
     width: max-content;
 }
 
-/* <div className="flex flex-col gap-4 justify-center items-center md:items-start w-full bg-gray-900 p-4 min-h-screen relative"> */
 .container {
     display: flex;
     flex-direction: column;
@@ -37,7 +30,6 @@
 
 }
 
-/* <button onClick={() => router.push('/dashboard')} className="text-white absolute top-4 left-4"> */
 
 .back_button {
     color: white;
@@ -46,15 +38,18 @@
     left: 1rem;
 }
 
-/* <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg mt-16"> */
 
 .card {
     width: 100%;
-    max-width: 80%;
+    max-width: 100%;
     background-color: #374151;
     padding: 1rem;
     border-radius: 0.5rem;
     margin-top: 1rem;
+}
+
+.card:first-of-type {
+    margin-top: 3rem;
 }
 
 .heading {
@@ -64,6 +59,14 @@
     display: flex;
     gap: 8px;
     align-items: center;
+}
+
+.flex_profile {
+    display: flex;
+    gap: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    flex-direction: column;
 }
 
 .flex {
@@ -82,6 +85,7 @@
 .card_text {
     color: white;
 }
+
 .provider_text {
     color: gray;
     font-size: small;
@@ -94,6 +98,133 @@
 
 }
 
+.email_change {
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+
+}
+
+.email_input {
+    background-color: #4b5563;
+    color: #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    outline: none;
+    border: none;
+    max-width: 100%;
+
+}
+
+.email_button {
+    background-color: #2563eb;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+
+}
+
+.cancel_email_button {
+    background-color: #e42828;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+
+}
+
+.email_change_info {
+
+    background-color: #6ee7b7;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    max-width: 100%;
+    width: 100%;
+
+
+}
+
+.user_id_input {
+    background-color: #4b5563;
+    color: #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    outline: none;
+    border: none;
+    max-width: 100%;
+
+}
+
+.uuid_change {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.update_button {
+    background-color: #2563eb;
+    color: white;
+    font-weight: bold;
+    font-size: large;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+
+}
+
+.delete_button {
+    background-color: #e42828;
+    color: white;
+    font-weight: bold;
+    font-size: large;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+
+}
+
+
+.email_change_info_text {
+    color: black;
+    font-weight: 100;
+    font-size: small;
+}
+
+.email_change_info_text_bold {
+    font-weight: bold;
+    color: #4848d8;
+    text-decoration: underline;
+}
+
+
+.uuid_error_text {
+    color: #e42828;
+    font-weight: bold;
+    font-size: small;
+}
+
+.uuid_success_text {
+    color: #6ee7b7;
+    font-weight: bold;
+    font-size: small;
+}
+/* medium screen */
 
 @media (min-width: 768px) {
     .container {
@@ -103,6 +234,7 @@
     .card {
         max-width: 60%;
     }
+
 }
 
 /* large screen */
