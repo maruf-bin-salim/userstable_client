@@ -1,0 +1,111 @@
+.loading_container {
+    height: 100vh;
+    background-color: #111827;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+}
+
+.main_container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    overflow-x: auto;
+    color: white;
+    background-color: #111827;
+}
+
+.navbar {
+    position: fixed;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    height: 10vh;
+    background-color: #111827;
+    color: white;
+
+}
+
+.navbar_left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar_image {   
+    border-radius: 50%;
+}
+
+.table {
+    margin: auto;
+    margin-top: 10vh;
+    max-width: 100%;
+    width: 98%;
+    overflow-x: scroll;
+    text-align: center;
+}
+
+.table > thead {
+    background-color: #1d2942;
+    color: white;
+    text-align: center;
+}
+
+.table > thead > tr > th {
+    padding: 10px;
+    background-color: #1d2942;
+    border: 1px solid #1d2942;
+}
+
+.table > tbody > tr {
+    background-color: #111827;
+    border: 1px solid #1d2942;
+}
+
+.table > tbody > tr >  td {
+    padding: 10px;
+}
+
+
+.tableButton {
+    background-color: #1d2942;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #535353;
+}
+
+.disabledButton {
+    background-color: #1d2942;
+    color: #888888;
+    border: 1px dashed #535353;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: not-allowed;
+}
+
+
+.tableDataEmail {
+    background-color: green;
+}
+
+.tableDataEmail > p {
+    margin-top: auto;
+    margin-bottom: auto;
+    background-color: rebeccapurple;
+    width: min-content;
+}
+
+.tableDataRole {
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}

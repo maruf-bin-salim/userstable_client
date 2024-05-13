@@ -1,8 +1,9 @@
 import { supabase } from "@/supabase/client";
-import { DeleteIcon, User, UserCheck2, UserIcon, UserMinusIcon, XIcon } from "lucide-react";
+import { CircleDashedIcon, DeleteIcon, LogOut, User, UserCheck2, UserCircle2Icon, UserIcon, UserMinusIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import styles from '@/styles/dashboard.module.css'
 
 export default function Dashboard() {
     const [session, setSession] = useState(null);
@@ -18,6 +19,7 @@ export default function Dashboard() {
         if (error || !data) {
             console.error(error);
             await supabase.auth.signOut();
+            router.push('/');
             return;
         }
 
@@ -46,7 +48,9 @@ export default function Dashboard() {
         oldIdentities.forEach(async identity => await supabase.auth.unlinkIdentity(identity));
     }
 
-    const fetchUsers = async () => {
+    const fetchUsers = async (session) => {
+
+        if (!session) return;
         setIsLoading(true);
         let { data, error } = await supabase.from('users').select('*');
         if (error) console.error(error);
@@ -74,8 +78,8 @@ export default function Dashboard() {
     }
 
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        if (session) fetchUsers(session);
+    }, [session]);
 
 
 
@@ -100,105 +104,126 @@ export default function Dashboard() {
     // useEffect for realtime changes
     useEffect(() => {
 
+        let subscription = null;
 
-        const subscription = supabase
-            .channel('user_channel')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
-                console.log('Change received!', payload);
-                fetchUsers();
-            })
-            .subscribe()
+        if (session) {
+            subscription = supabase
+                .channel('user_channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
+                    console.log('Change received!', payload);
+                    fetchUserAccount(session.user.email);
+                    fetchUsers(session);
+
+                })
+                .subscribe()
+        }
+
 
         return () => {
-            supabase.removeChannel(subscription);
+            if (subscription)
+                supabase.removeChannel(subscription);
         };
 
     }
-        , []);
-
+        , [session]);
 
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen w-full bg-gray-900" >
-                <p className="text-white text-2xl w-[100%] text-center">
-                    Loading...
+            <div className={styles.loading_container}>
+                <p className={styles.loadingText}>
+                    <CircleDashedIcon size={48} />
                 </p>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col gap-4 h-screen w-full bg-gray-900 p-4 overflow-x-auto relative">
-            {
-                session && session.user?.user_metadata?.avatar_url && (
-                    <Link href="/profile">
-                        <img
-                            className="rounded-full h-10 w-10 fixed top-4 left-4"
-                            src={session.user.user_metadata.avatar_url}
-                        />
-                        {
-                            userAccount && userAccount.role === 'ADMIN' && (
-                                <p className="text-white px-4 py-2 rounded-md fixed top-4 left-12">
-                                    <UserCheck2 size={28} />
-                                </p>
-                            )
-                        }
-                        {
-                            userAccount && userAccount.role === 'USER' && (
-                                <p className="text-white px-4 py-2 rounded-md fixed top-4 left-12">
-                                    <UserIcon size={28} />
-                                </p>
-                            )
-                        }
-                    </Link>
-                )
-            }
-            {
-                session && !session.user?.user_metadata?.avatar_url && (
-                    <Link href="/profile">
-                        <button className="bg-blue-500 text-white px-4 py-2 rounded-md fixed top-4 left-4">Go To Profile</button>
-                    </Link>
-                )
-            }
+        <div className={styles.main_container}>
 
-            {
-                session && (
-                    <button onClick={() => supabase.auth.signOut()} className="bg-red-500 text-white px-4 py-2 rounded-md fixed top-4 right-4">Sign Out</button>
-                )
-            }
+            <div className={styles.navbar}>
+
+                <div className={styles.navbar_left}>
+                    {
+                        session && session.user?.user_metadata?.avatar_url && (
+                            <div>
+                                <Link href="/profile">
+                                    <img
+                                        width={40}
+                                        className={styles.avatar_image}
+                                        src={session.user.user_metadata.avatar_url}
+                                    />
+
+                                </Link>
+                            </div>
+                        )
+                    }
+                    {
+                        session && !session.user?.user_metadata?.avatar_url && (
+                            <Link href="/profile">
+                                <button className={`${styles.button} ${styles.fixed} ${styles.topLeft}`}>
+                                    <UserCircle2Icon size={40} strokeWidth={1} />
+                                </button>
+                            </Link>
+                        )
+                    }
+                    {
+                        userAccount && userAccount.role === 'ADMIN' && (
+                            <p>
+                                <UserCheck2 size={28} />
+                            </p>
+                        )
+                    }
+                    {
+                        userAccount && userAccount.role === 'USER' && (
+                            <p>
+                                <UserIcon size={28} />
+                            </p>
+                        )
+                    }
+                </div>
+
+                {
+                    session && (
+                        <button onClick={() => supabase.auth.signOut()}>
+                            <LogOut size={24} />
+                        </button>
+                    )
+                }
+            </div>
 
             {/* table */}
 
             {/* show user_id, email, last_sign_in_at, joined_at */}
 
-            <table className="w-full bg-gray-800 rounded-lg mt-16 overflow-x-scroll sm:overflow-x-auto">
+            <table className={styles.table}>
 
-                <thead className="bg-gray-700">
-                    <tr className="text-left">
+                <thead className={styles.tableHead}>
+                    <tr className={styles.textLeft}>
                         {
                             userAccount && userAccount.role === 'ADMIN' && (
-                                <th className="text-white p-2">Delete</th>
+                                <th className={styles.tableHeader}>Delete</th>
                             )
                         }
-                        <th className="text-white p-2">User ID</th>
-                        <th className="text-white p-2">Email</th>
-                        <th className="text-white p-2">Last Sign In</th>
-                        <th className="text-white p-2">Joined At</th>
+                        <th className={styles.tableHeader}>User ID</th>
+                        <th className={styles.tableHeader}>Role</th>
+                        <th className={styles.tableHeader}>Email</th>
+                        <th className={styles.tableHeader}>Last Sign In</th>
+                        <th className={styles.tableHeader}>Joined At</th>
                     </tr>
                 </thead>
 
-                <tbody className="bg-gray-900">
+                <tbody className={styles.tableBody}>
                     {
                         users.map((user) => (
-                            <tr key={user.id} className="text-left border-b border-gray-700">
+                            <tr key={user.id} className={styles.tableRow}>
                                 {
                                     userAccount && userAccount.role === 'ADMIN' && userAccount.email !== user.email && (
-                                        <td className="text-gray-300 p-2">
+                                        <td className={styles.tableData}>
                                             <button onClick={async () => {
                                                 const { error } = await supabase.from('users').delete().eq('email', user.email);
                                                 if (error) console.error(error);
-                                            }} className="bg-red-500 text-white px-4 py-2 rounded-md">
+                                            }} className={`${styles.deleteButton} ${styles.tableButton}`}>
                                                 <UserMinusIcon size={18} />
                                             </button>
                                         </td>
@@ -208,44 +233,42 @@ export default function Dashboard() {
 
                                 {
                                     userAccount && userAccount.role === 'ADMIN' && userAccount.email === user.email && (
-                                        <td className="text-gray-300 p-2">
-                                            <button className="bg-gray-500 text-white px-4 py-2 rounded-md">
-                                            <UserMinusIcon size={18} />
+                                        <td className={styles.tableData}>
+                                            <button className={`${styles.disabledButton} ${styles.tableButton}`}>
+                                                <UserMinusIcon size={18} />
                                             </button>
                                         </td>
                                     )
                                 }
-                                <td className="text-gray-300 p-2">
+                                <td className={styles.tableData}>
                                     {user.user_id}
                                 </td>
-                                <td className="text-gray-300 p-2 flex gap-2">
+                                <td className={styles.tableDataRole}>
                                     {
-                                        user.role === 'ADMIN' && (
+                                        user.role === 'ADMIN' ? (
                                             <UserCheck2 size={24} />
                                         )
+                                            : (
+                                                <UserIcon size={24} />
+                                            )
+
                                     }
-                                    {
-                                        user.role === 'USER' && (
-                                            <UserIcon size={24} />
-                                        )
-                                    }
+                                </td>
+                                <td className={`${styles.tableData}`}>
                                     {user.email}
                                 </td>
-                                <td className="text-gray-300 p-2">
+                                <td className={styles.tableData}>
                                     {new Date(user.last_sign_in_at).toLocaleString()}
                                 </td>
-                                <td className="text-gray-300 p-2">
+                                <td className={styles.tableData}>
                                     {new Date(user.joined_at).toLocaleString()}
                                 </td>
-                                
                             </tr>
                         ))
                     }
                 </tbody>
 
             </table>
-
-
         </div>
     );
 }
