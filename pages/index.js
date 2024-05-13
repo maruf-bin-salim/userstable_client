@@ -15,7 +15,6 @@ export default function Home() {
 
   useEffect(() => {
     const data = supabase.auth.onAuthStateChange((event, session) => {
-      console.log(`Supabase Auth State Change: ${event}`);
       if(event === 'SIGNED_IN' && session) {
         router.push('/dashboard');
       }
@@ -32,7 +31,6 @@ export default function Home() {
     , []);
 
   useEffect(() => {
-    console.log(session);
     if (session) {
       router.push('/dashboard');
     }
