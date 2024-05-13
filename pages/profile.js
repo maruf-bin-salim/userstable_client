@@ -1,4 +1,5 @@
 import { supabase } from "@/supabase/client";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
@@ -9,6 +10,7 @@ export default function Profile() {
     const [email, setEmail] = useState('');
     const [publicUserProfile, setPublicUserProfile] = useState(null);
     const [uuid, setUuid] = useState(null);
+    const [error, setError] = useState('');
 
     async function keepLatestIdentity() {
         const { data } = await supabase.auth.getUserIdentities();
@@ -39,19 +41,11 @@ export default function Profile() {
         if (error) console.error(error);
         if (data && data.length > 0) {
             setPublicUserProfile(data[0]);
-            setUuid(data[0].user_id);
+            setUuid(data[0].user_generated_id);
         }
     }
 
-    async function updateUuid(session) {
-        const newUuid = uuidv4();
-        setUuid(newUuid);
-        await supabase.from('users').upsert([{
-            id: session.user.id,
-            user_id: newUuid
-        }]);
-        fetchPublicUserProfile(session);
-    }
+
 
     useEffect(() => {
         const data = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -94,7 +88,9 @@ export default function Profile() {
 
     return (
         <div className="flex flex-col gap-4 justify-center items-center md:items-start w-full bg-gray-900 p-4 min-h-screen relative">
-            <button onClick={() => router.push('/dashboard')} className="bg-blue-500 text-white px-4 py-2 rounded-md absolute top-4 left-4">Go Back</button>
+            <button onClick={() => router.push('/dashboard')} className="text-white absolute top-4 left-4">
+                <ArrowLeft size={36} />
+            </button>
 
             {publicUserProfile &&
                 <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg mt-16">
@@ -105,9 +101,9 @@ export default function Profile() {
                         <p className="text-gray-300 font-thin text-sm">Logged in with {session?.user?.identities[0].provider}</p>
                     </div>
 
-                   
+
                     <p className="text-gray-300">Your
-                        ID: {publicUserProfile.user_id}</p>
+                        ID: {publicUserProfile.user_generated_id}</p>
                     <p className="text-gray-300">You joined at {formatDate(publicUserProfile.joined_at)}</p>
                     <p className="text-gray-300">You last signed in at {formatDate(publicUserProfile.last_sign_in_at)}</p>
                     <button onClick={() => supabase.auth.signOut()} className="bg-red-500 text-white px-4 py-2 rounded-md mt-2">Sign Out</button>
@@ -171,14 +167,60 @@ export default function Profile() {
 
             </div>
 
-            <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg">
+            <div className="flex flex-col gap-4 w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg">
                 <h1 className="text-white">Update user ID </h1>
-                <button onClick={() => updateUuid(session)} className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2">Generate Random User ID</button>
+                <input type="text" value={uuid} onChange={(e) => {
+                    setError('');
+                    setUuid(e.target.value);
+                }}
+                    className="bg-gray-700 text-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[100%] w-full md:w-[80%] lg:w-[25%]" />
+
+                {
+                    error !== '' && error !== 'success' && <p className="text-red-500 text-sm">{error}</p>
+                }
+                {
+                    error === 'success' && <p className="text-green-500 text-sm">User ID updated successfully</p>
+                }
+                <button onClick={async () => {
+
+                    console.log('uuid', uuid);
+
+                    if (uuid === publicUserProfile.user_generated_id) {
+                        console.log('User ID is same as before');
+                        setError('User ID is same as before');
+                        return;
+                    }
+
+                    if (uuid === '') {
+                        console.log('User ID is empty');
+                        setError('User ID is empty');
+                        return;
+                    }
+
+                    const { data, error } = await supabase.from('users').upsert([{
+                        id: publicUserProfile.id,
+                        user_generated_id: uuid
+                    }]);
+
+                    if (error) {
+                        setError('user ID taken by someone else, please try another');
+                        console.log('error', error);
+                    }
+                    else {
+                        await fetchPublicUserProfile(session);
+                        setError('success');
+                    }
+
+
+                }} className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer w-[max-content]">
+                    Update User ID
+                </button>
             </div>
 
             <div className="w-full md:w-[80%] lg:w-[60%] bg-gray-800 p-4 rounded-lg">
                 <h1 className="text-white">Delete Account</h1>
                 <button onClick={async () => {
+                    await supabase.from('users').delete().eq('id', session.user.id);
                     await supabase.rpc('deleteUser');
                     await supabase.auth.signOut();
                 }} className="bg-red-500 text-white px-4 py-2 rounded-md mt-2">Delete Account</button>

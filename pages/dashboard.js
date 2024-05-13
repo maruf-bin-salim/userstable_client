@@ -235,6 +235,10 @@ export default function Dashboard() {
                                             <button onClick={async () => {
                                                 const { error } = await supabase.from('users').delete().eq('email', user.email);
                                                 if (error) console.error(error);
+                                                else {
+                                                    const {error} = await supabase.rpc('deleteUserByEmail', { email_input: user.email });
+                                                    if(error) console.error(error);
+                                                }
                                             }} className={`${styles.deleteButton} ${styles.tableButton}`}>
                                                 <UserMinusIcon size={18} />
                                             </button>
