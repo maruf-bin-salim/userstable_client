@@ -102,10 +102,16 @@
     height: 100%;
 }
 
-/* .tableDataRole {
+.tableDataRole > button {
     color: white;
     display: flex;
+    gap: 5px;
     justify-content: center;
     align-items: center;
-    margin-top: 10px;
-} */
+    margin: auto;
+    background-color: #1d2942;
+    padding: 10px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    border-radius: 5px;
+}

@@ -15,24 +15,16 @@ export default function Dashboard() {
 
 
     async function fetchUserAccount(email) {
-        const { data, error } = await supabase.from('users').select('*').eq('email', email).single();
-        if (error || !data) {
-            console.error(error);
-            await supabase.auth.signOut();
-            router.push('/');
-            return;
+        const { data, error } = await supabase.from('users').select('*').eq('email', email);
+        if (error || !data || data.length === 0) {
+            return null;
         }
 
-        setUserAccount(data);
+        setUserAccount(data[0]);
+        return data[0];
     }
 
-    useEffect(() => {
 
-        if (session) {
-            fetchUserAccount(session.user.email);
-        }
-    }
-        , [session]);
 
     async function keepLatestIdentity() {
         const { data } = await supabase.auth.getUserIdentities();
@@ -48,10 +40,10 @@ export default function Dashboard() {
         oldIdentities.forEach(async identity => await supabase.auth.unlinkIdentity(identity));
     }
 
-    const fetchUsers = async (session) => {
+    const fetchUsers = async (session, usersChanged) => {
 
         if (!session) return;
-        setIsLoading(true);
+        if (!usersChanged) setIsLoading(true);
         let { data, error } = await supabase.from('users').select('*');
         if (error) console.error(error);
         // sort by last_sign_in_at, keep own account at the top
@@ -63,36 +55,59 @@ export default function Dashboard() {
             data.unshift(user);
         }
 
+        let user = await fetchUserAccount(session.user.email);
+        if(usersChanged && !user) {
+            supabase.auth.signOut().then(() => router.push('/'));
+
+        }
+
+
         setUsers(data);
         setIsLoading(false);
     };
 
     async function upsertUser(session) {
-        const { data, error } = await supabase.from('users').upsert([{
+
+
+        let user = await fetchUserAccount(session.user.email);
+        console.log('user', user);
+
+        let addData = {
             id: session.user.id,
             email: session.user.email,
             last_sign_in_at: session.user.last_sign_in_at
-        }]);
+        };
+        if (!user || (user && user.user_generated_id === '')) {
+
+            let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let randomIdFromCharsArray = Array.from({ length: 10 }, () => characters[Math.floor(Math.random() * characters.length)]).join('');
+            addData.user_generated_id = randomIdFromCharsArray;
+        }
+
+        const { data, error } = await supabase.from('users').upsert([addData]);
         if (error) console.error(error);
 
     }
 
     useEffect(() => {
-        if (session) fetchUsers(session);
+        if (session) fetchUsers(session, false);
     }, [session]);
 
 
 
     useEffect(() => {
         const data = supabase.auth.onAuthStateChange(async (event, session) => {
-            if ((event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') && !session) {
+            if ((event === 'SIGNED_OUT') && !session) {
                 router.push('/');
             } else {
                 setSession(session);
                 if (session) {
-                    keepLatestIdentity();
-                    upsertUser(session);
-                    fetchUserAccount(session.user.email);
+                    await keepLatestIdentity();
+                    await upsertUser(session);
+                    let user = await fetchUserAccount(session.user.email);
+                    if (!user) {
+                        supabase.auth.signOut().then(() => router.push('/'));
+                    }
                 }
             }
         });
@@ -101,7 +116,6 @@ export default function Dashboard() {
     }, []);
 
 
-    // useEffect for realtime changes
     useEffect(() => {
 
         let subscription = null;
@@ -111,9 +125,7 @@ export default function Dashboard() {
                 .channel('user_channel')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
                     console.log('Change received!', payload);
-                    fetchUserAccount(session.user.email);
-                    fetchUsers(session);
-
+                    fetchUsers(session, true);
                 })
                 .subscribe()
         }
@@ -241,18 +253,27 @@ export default function Dashboard() {
                                     )
                                 }
                                 <td className={styles.tableData}>
-                                    {user.user_id}
+                                    {user.user_generated_id}
                                 </td>
                                 <td className={styles.tableDataRole}>
-                                    {
-                                        user.role === 'ADMIN' ? (
-                                            <UserCheck2 size={24} />
-                                        )
-                                            : (
-                                                <UserIcon size={24} />
-                                            )
+                                    <button>
+                                        {
+                                            user?.role.toLowerCase() === 'admin' ?
 
-                                    }
+                                                'admin' :
+                                                'user '
+                                        }
+
+                                        {
+                                            user.role === 'ADMIN' ? (
+                                                <UserCheck2 size={24} />
+                                            )
+                                                : (
+                                                    <UserIcon size={24} />
+                                                )
+
+                                        }
+                                    </button>
                                 </td>
                                 <td className={`${styles.tableData}`}>
                                     {user.email}
