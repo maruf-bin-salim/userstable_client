@@ -24,6 +24,14 @@ export default function Dashboard() {
         oldIdentities.forEach(async identity => await supabase.auth.unlinkIdentity(identity));
     }
 
+    const fetchUsers = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase.from('users').select('*');
+        if (error) console.error(error);
+        setUsers(data);
+        setIsLoading(false);
+    };
+
     async function upsertUser(session) {
         const { data, error } = await supabase.from('users').upsert([{
             id: session.user.id,
@@ -31,17 +39,10 @@ export default function Dashboard() {
             last_sign_in_at: session.user.last_sign_in_at
         }]);
         if (error) console.error(error);
+
     }
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            setIsLoading(true);
-            const { data, error } = await supabase.from('users').select('*');
-            if (error) console.error(error);
-            setUsers(data);
-            setIsLoading(false);
-        };
-
         fetchUsers();
     }, []);
 
@@ -62,6 +63,26 @@ export default function Dashboard() {
 
         return () => data.data.subscription.unsubscribe();
     }, []);
+
+
+    // useEffect for realtime changes
+    useEffect(() => {
+
+
+        const subscription = supabase
+            .channel('user_channel')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
+                console.log('Change received!', payload);
+                fetchUsers();
+            })
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(subscription);
+        };
+
+    }
+        , []);
 
 
 
