@@ -42,6 +42,10 @@ export default function Profile() {
         if (data && data.length > 0) {
             setPublicUserProfile(data[0]);
             setUuid(data[0].user_generated_id);
+            return data[0];
+        }
+        else {
+            return null;
         }
     }
 
@@ -69,6 +73,35 @@ export default function Profile() {
 
         return () => data.data.subscription.unsubscribe();
     }, []);
+
+
+    useEffect(() => {
+
+        let subscription = null;
+
+        if (session) {
+            subscription = supabase
+                .channel('user_channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
+                    fetchPublicUserProfile(session).then(data => {
+                        console.log('public user profile', data);
+                        if(!data) {
+                            supabase.auth.signOut().then(() => router.push('/'));
+                        }
+                    }
+                    );
+                })
+                .subscribe()
+        }
+
+
+        return () => {
+            if (subscription)
+                supabase.removeChannel(subscription);
+        };
+
+    }
+        , [session]);
 
 
     // 2024-05-09T17:49:46.184183Z
