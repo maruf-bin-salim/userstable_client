@@ -30,7 +30,6 @@ export default function Dashboard() {
         const { data } = await supabase.auth.getUserIdentities();
         const identities = data?.identities || null;
 
-        console.log('identities', identities);
 
         if (!identities) return;
 
@@ -70,7 +69,6 @@ export default function Dashboard() {
 
 
         let user = await fetchUserAccount(session.user.email);
-        console.log('user', user);
 
         let addData = {
             id: session.user.id,
@@ -124,7 +122,6 @@ export default function Dashboard() {
             subscription = supabase
                 .channel('user_channel')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
-                    console.log('Change received!', payload);
                     fetchUsers(session, true);
                 })
                 .subscribe()
