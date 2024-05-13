@@ -16,6 +16,7 @@ export default function Profile() {
         const { data } = await supabase.auth.getUserIdentities();
         const identities = data?.identities || null;
 
+        console.log('identities', identities);
 
         if (!identities) return;
 
@@ -36,6 +37,7 @@ export default function Profile() {
 
     async function fetchPublicUserProfile(session) {
         const { data, error } = await supabase.from('users').select('*').eq('id', session.user.id);
+        console.log(data, error);
         if (error) console.error(error);
         if (data && data.length > 0) {
             setPublicUserProfile(data[0]);
@@ -54,10 +56,15 @@ export default function Profile() {
             if ((event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') && !session) {
                 router.push('/');
             } else {
+                console.log('session', session);
                 if (session) {
+                    console.log('session exists');
                     setEmail(session?.user.email);
+                    console.log('keeping only latest identity');
                     keepLatestIdentity();
+                    console.log('upserting user');
                     upsertUser(session);
+                    console.log('fetching public user profile');
                     fetchPublicUserProfile(session);
                 }
                 setSession(session);
@@ -77,6 +84,7 @@ export default function Profile() {
                 .channel('user_channel')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
                     fetchPublicUserProfile(session).then(data => {
+                        console.log('public user profile', data);
                         if (!data) {
                             supabase.auth.signOut().then(() => router.push('/'));
                         }
@@ -232,13 +240,16 @@ export default function Profile() {
 
                     <button onClick={async () => {
 
+                        console.log('uuid', uuid);
 
                         if (uuid === publicUserProfile.user_generated_id) {
+                            console.log('User ID is same as before');
                             setError('User ID is same as before');
                             return;
                         }
 
                         if (uuid === '') {
+                            console.log('User ID is empty');
                             setError('User ID is empty');
                             return;
                         }
@@ -250,6 +261,7 @@ export default function Profile() {
 
                         if (error) {
                             setError('user ID taken by someone else, please try another');
+                            console.log('error', error);
                         }
                         else {
                             await fetchPublicUserProfile(session);
