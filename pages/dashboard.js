@@ -1,4 +1,5 @@
 import { supabase } from "@/supabase/client";
+import { DeleteIcon, User, UserCheck2, UserIcon, UserMinusIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -9,6 +10,27 @@ export default function Dashboard() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [users, setUsers] = useState([]);
+    const [userAccount, setUserAccount] = useState(null);
+
+
+    async function fetchUserAccount(email) {
+        const { data, error } = await supabase.from('users').select('*').eq('email', email).single();
+        if (error || !data) {
+            console.error(error);
+            await supabase.auth.signOut();
+            return;
+        }
+
+        setUserAccount(data);
+    }
+
+    useEffect(() => {
+
+        if (session) {
+            fetchUserAccount(session.user.email);
+        }
+    }
+        , [session]);
 
     async function keepLatestIdentity() {
         const { data } = await supabase.auth.getUserIdentities();
@@ -26,8 +48,17 @@ export default function Dashboard() {
 
     const fetchUsers = async () => {
         setIsLoading(true);
-        const { data, error } = await supabase.from('users').select('*');
+        let { data, error } = await supabase.from('users').select('*');
         if (error) console.error(error);
+        // sort by last_sign_in_at, keep own account at the top
+        data.sort((a, b) => new Date(b.last_sign_in_at).getTime() - new Date(a.last_sign_in_at).getTime());
+
+        let userIndex = data.findIndex(user => user.email === session.user.email);
+        if (userIndex > 0 && data[userIndex].role === 'ADMIN') {
+            let user = data.splice(userIndex, 1)[0];
+            data.unshift(user);
+        }
+
         setUsers(data);
         setIsLoading(false);
     };
@@ -57,6 +88,7 @@ export default function Dashboard() {
                 if (session) {
                     keepLatestIdentity();
                     upsertUser(session);
+                    fetchUserAccount(session.user.email);
                 }
             }
         });
@@ -105,6 +137,20 @@ export default function Dashboard() {
                             className="rounded-full h-10 w-10 fixed top-4 left-4"
                             src={session.user.user_metadata.avatar_url}
                         />
+                        {
+                            userAccount && userAccount.role === 'ADMIN' && (
+                                <p className="text-white px-4 py-2 rounded-md fixed top-4 left-12">
+                                    <UserCheck2 size={28} />
+                                </p>
+                            )
+                        }
+                        {
+                            userAccount && userAccount.role === 'USER' && (
+                                <p className="text-white px-4 py-2 rounded-md fixed top-4 left-12">
+                                    <UserIcon size={28} />
+                                </p>
+                            )
+                        }
                     </Link>
                 )
             }
@@ -130,6 +176,11 @@ export default function Dashboard() {
 
                 <thead className="bg-gray-700">
                     <tr className="text-left">
+                        {
+                            userAccount && userAccount.role === 'ADMIN' && (
+                                <th className="text-white p-2">Delete</th>
+                            )
+                        }
                         <th className="text-white p-2">User ID</th>
                         <th className="text-white p-2">Email</th>
                         <th className="text-white p-2">Last Sign In</th>
@@ -141,10 +192,43 @@ export default function Dashboard() {
                     {
                         users.map((user) => (
                             <tr key={user.id} className="text-left border-b border-gray-700">
+                                {
+                                    userAccount && userAccount.role === 'ADMIN' && userAccount.email !== user.email && (
+                                        <td className="text-gray-300 p-2">
+                                            <button onClick={async () => {
+                                                const { error } = await supabase.from('users').delete().eq('email', user.email);
+                                                if (error) console.error(error);
+                                            }} className="bg-red-500 text-white px-4 py-2 rounded-md">
+                                                <UserMinusIcon size={18} />
+                                            </button>
+                                        </td>
+                                    )
+                                }
+
+
+                                {
+                                    userAccount && userAccount.role === 'ADMIN' && userAccount.email === user.email && (
+                                        <td className="text-gray-300 p-2">
+                                            <button className="bg-gray-500 text-white px-4 py-2 rounded-md">
+                                            <UserMinusIcon size={18} />
+                                            </button>
+                                        </td>
+                                    )
+                                }
                                 <td className="text-gray-300 p-2">
                                     {user.user_id}
                                 </td>
-                                <td className="text-gray-300 p-2">
+                                <td className="text-gray-300 p-2 flex gap-2">
+                                    {
+                                        user.role === 'ADMIN' && (
+                                            <UserCheck2 size={24} />
+                                        )
+                                    }
+                                    {
+                                        user.role === 'USER' && (
+                                            <UserIcon size={24} />
+                                        )
+                                    }
                                     {user.email}
                                 </td>
                                 <td className="text-gray-300 p-2">
@@ -153,6 +237,7 @@ export default function Dashboard() {
                                 <td className="text-gray-300 p-2">
                                     {new Date(user.joined_at).toLocaleString()}
                                 </td>
+                                
                             </tr>
                         ))
                     }
