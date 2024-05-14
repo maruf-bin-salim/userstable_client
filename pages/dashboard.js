@@ -87,11 +87,11 @@ export default function Dashboard() {
 
     }
 
-    useEffect(() => {
-        if (session && users && users.length === 0) {
-            fetchUsers(session, false);
-        }
-    }, [session]);
+    // useEffect(() => {
+    //     if (session && users && users.length === 0) {
+    //         fetchUsers(session, false);
+    //     }
+    // }, [session]);
 
 
 
