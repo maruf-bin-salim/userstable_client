@@ -2,16 +2,14 @@
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies and then run the development server:
 
 ```bash
+npm instaal
+# Installing the libraries
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# running the server
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
