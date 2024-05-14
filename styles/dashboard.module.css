@@ -48,10 +48,10 @@
     width: 98%;
     overflow-x: scroll;
     text-align: center;
+    border: none;
 }
 
 .table > thead {
-    background-color: #1d2942;
     color: white;
     text-align: center;
 }
@@ -59,17 +59,18 @@
 .table > thead > tr > th {
     padding: 10px;
     background-color: #1d2942;
-    border: 1px solid #1d2942;
 }
 
 .table > tbody > tr {
     background-color: #111827;
-    border: 1px solid #1d2942;
 }
 
 .table > tbody > tr >  td {
     padding: 10px;
+    border: 1px solid #dbdbdb10;
 }
+
+
 
 
 .tablebutton { 

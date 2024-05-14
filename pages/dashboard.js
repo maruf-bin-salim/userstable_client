@@ -216,7 +216,7 @@ export default function Dashboard() {
 
             {/* show user_id, email, last_sign_in_at, joined_at */}
 
-            <table className={styles.table}>
+            <table className={styles.table} cellPadding="0" cellSpacing="0">
 
                 <thead className={styles.tableHead}>
                     <tr className={styles.textLeft}>
