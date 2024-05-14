@@ -55,7 +55,7 @@ export default function Dashboard() {
         }
 
         let user = await fetchUserAccount(session.user.email);
-        if(usersChanged && !user) {
+        if (usersChanged && !user) {
             supabase.auth.signOut().then(() => router.push('/'));
 
         }
@@ -87,11 +87,7 @@ export default function Dashboard() {
 
     }
 
-    // useEffect(() => {
-    //     if (session && users && users.length === 0) {
-    //         fetchUsers(session, false);
-    //     }
-    // }, [session]);
+
 
 
 
@@ -100,14 +96,11 @@ export default function Dashboard() {
             if ((event === 'SIGNED_OUT') && !session) {
                 router.push('/');
             } else {
+                console.log('event', event);
+                console.log('session at event', session);
                 setSession(session);
                 if (session) {
-                    await keepLatestIdentity();
-                    await upsertUser(session);
-                    let user = await fetchUserAccount(session.user.email);
-                    if (!user) {
-                        supabase.auth.signOut().then(() => router.push('/'));
-                    }
+
                 }
             }
         });
@@ -120,7 +113,23 @@ export default function Dashboard() {
 
         let subscription = null;
 
+        async function handleSession(session) {
+            if (session) {
+                await keepLatestIdentity();
+                await upsertUser(session);
+                let user = await fetchUserAccount(session.user.email);
+                if (!user) {
+                    supabase.auth.signOut().then(() => router.push('/'));
+                }
+                else {
+                    fetchUsers(session, false);
+                }
+            }
+        }
+
         if (session) {
+
+            handleSession(session);
             subscription = supabase
                 .channel('user_channel')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
@@ -235,8 +244,8 @@ export default function Dashboard() {
                                                 const { error } = await supabase.from('users').delete().eq('email', user.email);
                                                 if (error) console.error(error);
                                                 else {
-                                                    const {error} = await supabase.rpc('deleteUserByEmail', { email_input: user.email });
-                                                    if(error) console.error(error);
+                                                    const { error } = await supabase.rpc('deleteUserByEmail', { email_input: user.email });
+                                                    if (error) console.error(error);
                                                 }
                                             }} className={`${styles.deleteButton} ${styles.tableButton}`}>
                                                 <UserMinusIcon size={18} />
