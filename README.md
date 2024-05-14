@@ -5,7 +5,7 @@
 First, install dependencies and then run the development server:
 
 ```bash
-npm instaal
+npm install
 # Installing the libraries
 
 npm run dev

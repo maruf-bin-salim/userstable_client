@@ -93,11 +93,9 @@ export default function Dashboard() {
 
     useEffect(() => {
         const data = supabase.auth.onAuthStateChange(async (event, session) => {
-            if ((event === 'SIGNED_OUT') && !session) {
+            if ((event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') && !session) {
                 router.push('/');
             } else {
-                console.log('event', event);
-                console.log('session at event', session);
                 setSession(session);
                 if (session) {
 

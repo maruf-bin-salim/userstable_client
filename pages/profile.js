@@ -250,7 +250,6 @@ export default function Profile() {
 
                         if (error) {
                             setError('user ID taken by someone else, please try another');
-                            console.log('error', error);
                         }
                         else {
                             await fetchPublicUserProfile(session);
