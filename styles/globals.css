@@ -29,14 +29,14 @@ button {
   align-items: center;
   height: 100vh;
   width: 100%;
-  background-color: #1d2942;
+  background-color: #111827;
 }
 
 .auth_container {
   /* block min-w-[90vw] md:min-w-[300px] lg:min-w-[400px] bg-[#3b3b3b] p-4 rounded-[20px] */
   display: block;
   min-width: 90vw;
-  background-color: #1b1b1b;
+  background-color: #1d2942;
   padding: 20px;
   border: 1px solid gray;
   border-radius: 20px;
