@@ -15,13 +15,13 @@ export default function Home() {
 
   useEffect(() => {
     const data = supabase.auth.onAuthStateChange((event, session) => {
-      if(event === 'SIGNED_IN' && session) {
+      if (event === 'SIGNED_IN' && session) {
         router.push('/dashboard');
       }
       else {
         setSession(session);
       }
-     
+
     });
 
     return () => {
@@ -37,13 +37,26 @@ export default function Home() {
   }, [session]);
 
   return (
-    <div className="flex justify-center items-center h-screen w-[100%] bg-[#2b2b2b]">
-      {session && <div className="absolute top-0 right-0 p-4 bg-[#3b3b3b] text-white">User: {session.user.email}</div>}
-      <div className="block min-w-[90vw] md:min-w-[300px] lg:min-w-[400px] bg-[#3b3b3b] p-4 rounded-[20px]">
+    // auth_page
+    <div className='auth_page'>
+      {/* <div className="flex justify-center items-center h-screen w-[100%] bg-[#2b2b2b]"> */}
+      <div className="auth_container">
         <Auth
           socialLayout='horizontal'
           view='sign_in'
-          appearance={{ theme: ThemeSupa }}
+          appearance={{
+            theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  brand: '#53a150',
+                  inputText: 'white',
+                  inputLabelText: 'white',
+                  anchorTextColor: '#dbdbdb',
+                },
+              },
+            },
+          }}
           supabaseClient={supabase}
           providers={['google', 'apple', 'azure']}
           providerScopes={{

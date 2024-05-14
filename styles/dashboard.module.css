@@ -72,16 +72,19 @@
 }
 
 
-.tableButton {
+.tablebutton { 
+    outline: none; 
     background-color: #1d2942;
     color: white;
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
     border: 1px solid #535353;
+    display: none;
 }
 
-.disabledButton {
+.disabledbutton { 
+    outline: none; 
     background-color: #1d2942;
     color: #888888;
     border: 1px dashed #535353;
@@ -102,7 +105,7 @@
     height: 100%;
 }
 
-.tableDataRole > button {
+.tableDataRole > button { outline: none; 
     color: white;
     display: flex;
     gap: 5px;
@@ -114,4 +117,29 @@
     padding-bottom: 5px;
     padding-top: 5px;
     border-radius: 5px;
+}
+
+.deleteButton {
+    background-color: #1d2942;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    border: 1px solid #dbdbdb50;
+}
+
+.disabledButton {
+    background-color: #1d2942;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    border: 1px solid #dbdbdb50;
+    border: 1px dashed #dbdbdb50;
+
+}
+
+.logoutButton {
+    background-color: #111827;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
 }

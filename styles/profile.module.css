@@ -1,5 +1,3 @@
-
-
 .loader {
     display: flex;
     justify-content: center;
@@ -32,11 +30,15 @@
 
 
 .back_button {
+    outline: none;
     color: white;
     position: absolute;
     top: 1rem;
     left: 1rem;
+    background-color: #1f2937;
 }
+
+
 
 
 .card {
@@ -92,9 +94,11 @@
 }
 
 .logout_button {
+    outline: none;
     color: white;
     border-radius: 0.5rem;
     cursor: pointer;
+    background-color: #374151;
 
 }
 
@@ -120,6 +124,7 @@
 }
 
 .email_button {
+    outline: none;
     background-color: #2563eb;
     color: white;
     padding: 0.5rem 1rem;
@@ -131,6 +136,7 @@
 }
 
 .cancel_email_button {
+    outline: none;
     background-color: #e42828;
     color: white;
     padding: 0.5rem 1rem;
@@ -173,6 +179,7 @@
 }
 
 .update_button {
+    outline: none;
     background-color: #2563eb;
     color: white;
     font-weight: bold;
@@ -186,6 +193,7 @@
 }
 
 .delete_button {
+    outline: none;
     background-color: #e42828;
     color: white;
     font-weight: bold;
@@ -224,6 +232,7 @@
     font-weight: bold;
     font-size: small;
 }
+
 /* medium screen */
 
 @media (min-width: 768px) {
